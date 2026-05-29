@@ -3,12 +3,14 @@ name: Build Firmware & Create Release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+    env:
+      ESP_IDF_VERSION: v6.0.1
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -16,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install ESP-IDF dependencies
         run: |
@@ -28,19 +30,16 @@ jobs:
         run: |
           mkdir -p ~/esp
           cd ~/esp
-          
-          # Clone or update ESP-IDF
-          if [ ! -d "esp-idf" ]; then
-            git clone --branch v5.2 --depth 1 https://github.com/espressif/esp-idf.git
-          fi
-          
+
+          # Clone ESP-IDF v6.x with submodules
+          git clone --branch "$ESP_IDF_VERSION" --depth 1 --recursive https://github.com/espressif/esp-idf.git
+
           cd esp-idf
-          git fetch origin
-          git checkout v5.2
-          
+          git submodule update --init --recursive --depth 1
+
           # Run installation
           ./install.sh esp32s3
-          
+
           # Export environment
           source export.sh
           echo "IDF_PATH=$HOME/esp/esp-idf" >> $GITHUB_ENV
@@ -73,17 +72,17 @@ jobs:
       - name: Check firmware size
         run: |
           source ~/esp/esp-idf/export.sh
-          
+
           # Source the size limits
           source SIZE_LIMITS.txt
-          
+
           BINARY_PATH="build/monome-ble-raw.bin"
           BINARY_SIZE=$(stat -f%z "$BINARY_PATH" 2>/dev/null || stat -c%s "$BINARY_PATH" 2>/dev/null)
-          
+
           echo "Firmware size: $BINARY_SIZE bytes"
           echo "Max allowed: $MAX_FIRMWARE_SIZE bytes"
           echo "Warning threshold: $WARN_FIRMWARE_SIZE bytes"
-          
+
           if [ $BINARY_SIZE -gt $MAX_FIRMWARE_SIZE ]; then
             echo "❌ FATAL: Firmware size exceeds maximum limit!"
             exit 1
@@ -99,7 +98,7 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/}
           cp build/monome-ble-raw.bin "release-artifacts/monome-ble-raw-${VERSION}.bin"
           cp build/monome-ble-raw.elf "release-artifacts/monome-ble-raw-${VERSION}.elf"
-          
+
           # Also include build log for debugging
           if [ -f build/build_log.txt ]; then
             cp build/build_log.txt "release-artifacts/"
