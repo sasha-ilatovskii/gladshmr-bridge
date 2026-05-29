@@ -1,14 +1,15 @@
 #pragma once
-#include <stdint.h>
 #include "tusb.h"
+#include <stdint.h>
 
 // USB string descriptor indices
-enum {
-    STRID_LANGID  = 0,
-    STRID_MANUF   = 1,  // "monome"
-    STRID_PRODUCT = 2,  // "monome"
-    STRID_SERIAL  = 3,  // "m1000001"
-    STRID_COUNT
+enum
+{
+  STRID_LANGID = 0,
+  STRID_MANUF = 1,   // "monome"
+  STRID_PRODUCT = 2, // "monome"
+  STRID_SERIAL = 3,  // "m1000001"
+  STRID_COUNT
 };
 
 extern tusb_desc_device_t const desc_device;

@@ -17,10 +17,10 @@
 //
 //   0x10  KEY_DOWN     [x(1), y(1)]                               3 bytes total
 //   0x11  KEY_UP       [x(1), y(1)]                               3 bytes total
-//   0x20  ENC_DELTA    [num(1), delta(1)]                         3 bytes  (delta is int8 cast to uint8)
-//   0x21  ENC_SW_DOWN  [num(1)]                                   2 bytes
-//   0x22  ENC_SW_UP    [num(1)]                                   2 bytes
-//   0x30  TILT         [sensor(1), x_lo(1), x_hi(1),             8 bytes  (x/y/z are 16-bit LE signed)
+//   0x20  ENC_DELTA    [num(1), delta(1)]                         3 bytes  (delta is int8 cast to
+//   uint8) 0x21  ENC_SW_DOWN  [num(1)]                                   2 bytes 0x22  ENC_SW_UP
+//   [num(1)]                                   2 bytes 0x30  TILT         [sensor(1), x_lo(1),
+//   x_hi(1),             8 bytes  (x/y/z are 16-bit LE signed)
 //                       y_lo(1), y_hi(1), z_lo(1), z_hi(1)]
 //
 // Config characteristic format: identical to firmware-ble (monome_slots format):
@@ -37,4 +37,4 @@ void ble_raw_toggle_debug(void);
 // Send a state notification to the connected iPad (ESP32 → iPad).
 // data is the raw mext bytes: [header_byte, payload...].
 // No-op if no client is connected or not subscribed to notifications.
-void ble_raw_send_state(const uint8_t *data, uint16_t len);
+void ble_raw_send_state(const uint8_t* data, uint16_t len);

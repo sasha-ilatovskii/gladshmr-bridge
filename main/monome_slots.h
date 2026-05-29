@@ -15,16 +15,18 @@
 
 #include <stdint.h>
 
-typedef enum {
-    MONOME_SLOT_DISABLED = 0,
-    MONOME_SLOT_GRID     = 1,
-    MONOME_SLOT_ARC      = 2,
+typedef enum
+{
+  MONOME_SLOT_DISABLED = 0,
+  MONOME_SLOT_GRID = 1,
+  MONOME_SLOT_ARC = 2,
 } monome_slot_type_t;
 
-typedef struct {
-    monome_slot_type_t type;
-    uint8_t param1;  // grid: cols   | arc: rings
-    uint8_t param2;  // grid: rows   | arc: unused (0)
+typedef struct
+{
+  monome_slot_type_t type;
+  uint8_t param1; // grid: cols   | arc: rings
+  uint8_t param2; // grid: rows   | arc: unused (0)
 } monome_slot_t;
 
 #define MAX_MONOME_SLOTS 4
@@ -32,7 +34,7 @@ typedef struct {
 // Active slot array. Slot i maps directly to CDC interface i.
 // Only [0 .. g_slot_count-1] are non-DISABLED.
 extern monome_slot_t g_slots[MAX_MONOME_SLOTS];
-extern int           g_slot_count;
+extern int g_slot_count;
 
 // Load slot config from NVS. Falls back to default (grid16x8 + arc4)
 // if no saved config exists. Call after nvs_flash_init().
@@ -44,4 +46,4 @@ void monome_slots_init(void);
 //   3. Rebuilds the USB configuration descriptor
 //   4. Triggers soft USB re-enumeration (norns sees new ttyACM set)
 // Safe to call from any task context — re-enum runs in a short-lived task.
-void monome_slots_apply(const monome_slot_t *slots, int count);
+void monome_slots_apply(const monome_slot_t* slots, int count);
