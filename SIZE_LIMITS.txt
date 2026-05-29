@@ -1,0 +1,19 @@
+# Firmware Size Limits for ESP32-S3
+#
+# Total Flash: 8MB (16MB on some variants)
+# Bootloader: ~64KB
+# Partition Table: ~4KB
+# NVS Partition: ~64KB
+# Available for firmware: ~4MB (conservative estimate with headroom)
+#
+# Limits (in bytes):
+MAX_FIRMWARE_SIZE=2097152
+
+# Warning threshold (80% of max):
+WARN_FIRMWARE_SIZE=1677721
+
+# Additional info:
+# - These limits ensure compatibility across different ESP32-S3 configurations
+# - Current conservative: 2MB max with warning at 1.6MB
+# - Can be increased if partition scheme is validated
+# - Monitor actual binary size in build output (build/monome-ble-raw.bin)

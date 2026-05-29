@@ -1,0 +1,120 @@
+name: Build Firmware & Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install ESP-IDF dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git wget flex bison gperf python3-pip \
+            python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+
+      - name: Cache ESP-IDF
+        uses: actions/cache@v3
+        with:
+          path: ~/esp-idf
+          key: esp-idf-v5.2-${{ runner.os }}
+
+      - name: Install ESP-IDF
+        run: |
+          mkdir -p ~/esp-idf
+          cd ~/esp-idf
+          if [ ! -d ".git" ]; then
+            git clone --depth 1 --branch v5.2 https://github.com/espressif/esp-idf.git .
+            ./install.sh esp32s3
+          fi
+
+      - name: Set up ESP-IDF environment
+        run: |
+          source ~/esp-idf/export.sh
+          echo "IDF_PATH=$HOME/esp-idf" >> $GITHUB_ENV
+
+      - name: Install clang-format
+        run: |
+          sudo apt-get install -y clang-format
+
+      - name: Run clang-format check
+        run: |
+          echo "Checking code formatting..."
+          find main -name "*.c" -o -name "*.h" | while read file; do
+            clang-format --dry-run -Werror "$file" || exit 1
+          done
+          echo "✓ Code formatting check passed"
+
+      - name: Build firmware
+        run: |
+          source ~/esp-idf/export.sh
+          idf.py set-target esp32s3
+          idf.py build
+
+      - name: Check firmware size
+        run: |
+          source ~/esp-idf/export.sh
+          
+          # Source the size limits
+          source SIZE_LIMITS.txt
+          
+          BINARY_PATH="build/monome-ble-raw.bin"
+          BINARY_SIZE=$(stat -f%z "$BINARY_PATH" 2>/dev/null || stat -c%s "$BINARY_PATH" 2>/dev/null)
+          
+          echo "Firmware size: $BINARY_SIZE bytes"
+          echo "Max allowed: $MAX_FIRMWARE_SIZE bytes"
+          echo "Warning threshold: $WARN_FIRMWARE_SIZE bytes"
+          
+          if [ $BINARY_SIZE -gt $MAX_FIRMWARE_SIZE ]; then
+            echo "❌ FATAL: Firmware size exceeds maximum limit!"
+            exit 1
+          elif [ $BINARY_SIZE -gt $WARN_FIRMWARE_SIZE ]; then
+            echo "⚠️ WARNING: Firmware size exceeds warning threshold"
+          else
+            echo "✓ Firmware size is within acceptable limits"
+          fi
+
+      - name: Prepare release artifacts
+        run: |
+          mkdir -p release-artifacts
+          VERSION=${GITHUB_REF#refs/tags/}
+          cp build/monome-ble-raw.bin "release-artifacts/monome-ble-raw-${VERSION}.bin"
+          cp build/monome-ble-raw.elf "release-artifacts/monome-ble-raw-${VERSION}.elf"
+          
+          # Also include build log for debugging
+          if [ -f build/build_log.txt ]; then
+            cp build/build_log.txt "release-artifacts/"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            release-artifacts/*.bin
+            release-artifacts/*.elf
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload build artifacts (for debugging)
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts-${{ github.ref_name }}
+          path: |
+            build/
+            !build/.cmake
+          retention-days: 7
