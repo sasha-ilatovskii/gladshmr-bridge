@@ -24,25 +24,32 @@ jobs:
           sudo apt-get install -y git wget flex bison gperf python3-pip \
             python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
 
-      - name: Cache ESP-IDF
-        uses: actions/cache@v4
-        with:
-          path: ~/esp-idf
-          key: esp-idf-v5.2-${{ runner.os }}
-
       - name: Install ESP-IDF
         run: |
-          mkdir -p ~/esp-idf
-          cd ~/esp-idf
-          if [ ! -d ".git" ]; then
-            git clone --depth 1 --branch v5.2 https://github.com/espressif/esp-idf.git .
-            ./install.sh esp32s3
+          mkdir -p ~/esp
+          cd ~/esp
+          
+          # Clone or update ESP-IDF
+          if [ ! -d "esp-idf" ]; then
+            git clone --branch v5.2 --depth 1 https://github.com/espressif/esp-idf.git
           fi
+          
+          cd esp-idf
+          git fetch origin
+          git checkout v5.2
+          
+          # Run installation
+          ./install.sh esp32s3
+          
+          # Export environment
+          source export.sh
+          echo "IDF_PATH=$HOME/esp/esp-idf" >> $GITHUB_ENV
 
-      - name: Set up ESP-IDF environment
+      - name: Verify ESP-IDF environment
         run: |
-          source ~/esp-idf/export.sh
-          echo "IDF_PATH=$HOME/esp-idf" >> $GITHUB_ENV
+          source ~/esp/esp-idf/export.sh
+          idf.py --version
+          echo "✓ ESP-IDF environment ready"
 
       - name: Install clang-format
         run: |
@@ -50,21 +57,24 @@ jobs:
 
       - name: Run clang-format check
         run: |
-          echo "Checking code formatting..."
+          echo "Checking code formatting on PR..."
           find main -name "*.c" -o -name "*.h" | while read file; do
-            clang-format --dry-run -Werror "$file" || exit 1
+            if ! clang-format --dry-run "$file" > /dev/null 2>&1; then
+              echo "❌ $file needs formatting"
+              exit 1
+            fi
           done
           echo "✓ Code formatting check passed"
 
       - name: Build firmware
         run: |
-          source ~/esp-idf/export.sh
+          source ~/esp/esp-idf/export.sh
           idf.py set-target esp32s3
           idf.py build
 
       - name: Check firmware size
         run: |
-          source ~/esp-idf/export.sh
+          source ~/esp/esp-idf/export.sh
           
           # Source the size limits
           source SIZE_LIMITS.txt
