@@ -13,9 +13,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     env:
       ESP_IDF_VERSION: v6.0.1
       ESP_TARGET: esp32s3
@@ -179,7 +176,7 @@ jobs:
             release-artifacts/*.elf
             release-artifacts/*.md
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
           tag_name: ${{ github.ref_name }}
           fail_on_unmatched_files: true
@@ -187,16 +184,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure GitHub Pages
+        if: ${{ !contains(github.ref_name, '-') }}
         uses: actions/configure-pages@v5
 
       - name: Upload ESP Launchpad site
+        if: ${{ !contains(github.ref_name, '-') }}
         uses: actions/upload-pages-artifact@v3
         with:
           path: launchpad-site
-
-      - name: Deploy ESP Launchpad site to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
 
       - name: Upload build artifacts (for debugging)
         if: always()
@@ -209,3 +204,17 @@ jobs:
             launchpad-site/
             !build/.cmake
           retention-days: 7
+  deploy-pages:
+    name: Deploy ESP Launchpad to GitHub Pages
+    # GitHub Pages environment in this repo rejects test/pre-release tags like v0.0.1-flash.
+    # Release assets are still created for every v* tag; Pages is updated only from stable tags.
+    if: ${{ github.ref_type == 'tag' && !contains(github.ref_name, '-') }}
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy ESP Launchpad site to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
