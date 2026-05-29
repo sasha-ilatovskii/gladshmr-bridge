@@ -15,4 +15,4 @@ void mext_slot_init(void);
 // Finds the first slot whose type matches the event type:
 //   KEY events   → first MONOME_SLOT_GRID slot
 //   ENC events   → first MONOME_SLOT_ARC  slot
-void mext_slot_dispatch(const uart_msg_t *msg);
+void mext_slot_dispatch(const uart_msg_t* msg);

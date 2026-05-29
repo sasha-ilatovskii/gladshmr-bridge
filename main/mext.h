@@ -12,7 +12,7 @@
 #define SS_SYSTEM 0
 #define SS_LED_GRID 1
 #define SS_KEY_GRID 2
-#define SS_TILT 8       // libmonome mext.h: SS_TILT = 8
+#define SS_TILT 8 // libmonome mext.h: SS_TILT = 8
 #define SS_ENCODER 5
 #define SS_LED_RING 9
 
@@ -21,26 +21,22 @@
 //
 // HOST → DEVICE (commands from libmonome/norns)
 // ---------------------------------------------------------------------------
-#define MEXT_SYSTEM_QUERY                                                      \
-  0x00 // no payload; device responds with QUERY_RESPONSE
-#define MEXT_SYSTEM_GET_ID 0x01 // no payload; device responds with SYSTEM_ID
-#define MEXT_SYSTEM_GET_GRIDSZ                                                 \
-  0x05 // no payload; device responds with SYSTEM_GRIDSZ
+#define MEXT_SYSTEM_QUERY 0x00      // no payload; device responds with QUERY_RESPONSE
+#define MEXT_SYSTEM_GET_ID 0x01     // no payload; device responds with SYSTEM_ID
+#define MEXT_SYSTEM_GET_GRIDSZ 0x05 // no payload; device responds with SYSTEM_GRIDSZ
 
-#define MEXT_LED_OFF 0x10     // payload: x(1) y(1)
-#define MEXT_LED_ON 0x11      // payload: x(1) y(1)
-#define MEXT_LED_ALL_OFF 0x12 // no payload
-#define MEXT_LED_ALL_ON 0x13  // no payload
-#define MEXT_LED_MAP 0x14     // payload: x_off(1) y_off(1) data[8]   — bitmask
-#define MEXT_LED_ROW 0x15     // payload: x_off(1) y(1) data(1)
-#define MEXT_LED_COLUMN 0x16  // payload: x(1) y_off(1) data(1)
-#define MEXT_LED_INTENSITY 0x17 // payload: intensity(1)  — 0-15
-#define MEXT_LED_LEVEL_SET 0x18 // payload: x(1) y(1) level(1)
-#define MEXT_LED_LEVEL_ALL 0x19 // payload: level(1)
-#define MEXT_LED_LEVEL_MAP                                                     \
-  0x1A // payload: x_off(1) y_off(1) levels[32] — 64×4-bit packed
-#define MEXT_LED_LEVEL_ROW                                                     \
-  0x1B // payload: x_off(1) y(1) levels[4]      — 8×4-bit packed
+#define MEXT_LED_OFF 0x10          // payload: x(1) y(1)
+#define MEXT_LED_ON 0x11           // payload: x(1) y(1)
+#define MEXT_LED_ALL_OFF 0x12      // no payload
+#define MEXT_LED_ALL_ON 0x13       // no payload
+#define MEXT_LED_MAP 0x14          // payload: x_off(1) y_off(1) data[8]   — bitmask
+#define MEXT_LED_ROW 0x15          // payload: x_off(1) y(1) data(1)
+#define MEXT_LED_COLUMN 0x16       // payload: x(1) y_off(1) data(1)
+#define MEXT_LED_INTENSITY 0x17    // payload: intensity(1)  — 0-15
+#define MEXT_LED_LEVEL_SET 0x18    // payload: x(1) y(1) level(1)
+#define MEXT_LED_LEVEL_ALL 0x19    // payload: level(1)
+#define MEXT_LED_LEVEL_MAP 0x1A    // payload: x_off(1) y_off(1) levels[32] — 64×4-bit packed
+#define MEXT_LED_LEVEL_ROW 0x1B    // payload: x_off(1) y(1) levels[4]      — 8×4-bit packed
 #define MEXT_LED_LEVEL_COLUMN 0x1C // payload: x(1) y_off(1) levels[4]
 
 // Tilt commands (SS_TILT=8):
@@ -49,14 +45,14 @@
 // CMD_TILT_DISABLE=2 → 0x82  HOST→DEVICE  payload: sensor(1)
 // CMD_TILT=1        → 0x81   DEVICE→HOST  payload: sensor(1) x(2LE) y(2LE) z(2LE)
 // TILT_ENABLE and TILT (data) share opcode 0x81; direction determines meaning.
-#define MEXT_TILT_ENABLE  0x81 // HOST→DEVICE payload: sensor(1)
+#define MEXT_TILT_ENABLE 0x81  // HOST→DEVICE payload: sensor(1)
 #define MEXT_TILT_DISABLE 0x82 // HOST→DEVICE payload: sensor(1)
-#define MEXT_TILT         0x81 // DEVICE→HOST payload: sensor(1) x(2LE) y(2LE) z(2LE)
+#define MEXT_TILT 0x81         // DEVICE→HOST payload: sensor(1) x(2LE) y(2LE) z(2LE)
 
-#define MEXT_RING_SET 0x90   // payload: ring(1) led(1) level(1)
-#define MEXT_RING_ALL 0x91   // payload: ring(1) level(1)
-#define MEXT_RING_MAP 0x92   // payload: ring(1) levels[32] — 64×4-bit packed
-#define MEXT_RING_RANGE 0x93 // payload: ring(1) start(1) end(1) level(1)
+#define MEXT_RING_SET 0x90       // payload: ring(1) led(1) level(1)
+#define MEXT_RING_ALL 0x91       // payload: ring(1) level(1)
+#define MEXT_RING_MAP 0x92       // payload: ring(1) levels[32] — 64×4-bit packed
+#define MEXT_RING_RANGE 0x93     // payload: ring(1) start(1) end(1) level(1)
 #define MEXT_RING_INTENSITY 0x94 // payload: ring(1) level(1)
 
 // ---------------------------------------------------------------------------
@@ -71,8 +67,8 @@
 
 // MEXT_TILT / MEXT_TILT_ENABLE / MEXT_TILT_DISABLE defined above (0x81 / 0x82)
 
-#define MEXT_ENCODER_DELTA 0x50     // payload: number(1) delta(1, signed int8)
-#define MEXT_ENCODER_SWITCH_UP 0x51 // payload: number(1)
+#define MEXT_ENCODER_DELTA 0x50       // payload: number(1) delta(1, signed int8)
+#define MEXT_ENCODER_SWITCH_UP 0x51   // payload: number(1)
 #define MEXT_ENCODER_SWITCH_DOWN 0x52 // payload: number(1)
 
 // ---------------------------------------------------------------------------
@@ -109,7 +105,7 @@ static const uint8_t MEXT_INCOMING_PAYLOAD_LEN[256] = {
     [MEXT_LED_LEVEL_SET] = 3,
     [MEXT_LED_LEVEL_ALL] = 1,
     [MEXT_LED_LEVEL_MAP] = 34,
-    [MEXT_LED_LEVEL_ROW]    = 6, // x_off(1) y(1) levels[4] — 8 pixels × 4-bit packed per chunk
+    [MEXT_LED_LEVEL_ROW] = 6,    // x_off(1) y(1) levels[4] — 8 pixels × 4-bit packed per chunk
     [MEXT_LED_LEVEL_COLUMN] = 6, // x(1) y_off(1) levels[4] — 8 pixels × 4-bit packed per chunk
 
     // SS_TILT=8 commands from norns (mext, not old protocol):
@@ -117,7 +113,7 @@ static const uint8_t MEXT_INCOMING_PAYLOAD_LEN[256] = {
     // 0x81 = CMD_TILT_ENABLE    payload: sensor(1)
     // 0x82 = CMD_TILT_DISABLE   payload: sensor(1)
     [0x80] = 0,
-    [MEXT_TILT_ENABLE]  = 1,
+    [MEXT_TILT_ENABLE] = 1,
     [MEXT_TILT_DISABLE] = 1,
 
     [MEXT_RING_SET] = 3,
