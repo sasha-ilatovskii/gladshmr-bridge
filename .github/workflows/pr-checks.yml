@@ -25,7 +25,7 @@ jobs:
             python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
 
       - name: Cache ESP-IDF
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/esp-idf
           key: esp-idf-v5.2-${{ runner.os }}
@@ -87,7 +87,7 @@ jobs:
 
       - name: Upload build artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pr-build-artifacts-${{ github.event.pull_request.number }}
           path: |
