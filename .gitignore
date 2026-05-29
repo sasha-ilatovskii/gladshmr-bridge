@@ -1,0 +1,19 @@
+# ESP-IDF build and dependency artifacts
+build/
+managed_components/
+
+# Local Python and editor files
+*.pyc
+__pycache__/
+*.swp
+*.swo
+.DS_Store
+.vscode/
+
+# Generated SDK config backups and dependency locks
+sdkconfig.old
+dependencies.lock
+
+# Misc
+*.log
+.cache/
